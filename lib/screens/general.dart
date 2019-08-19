@@ -1698,17 +1698,331 @@ class ServiceForm extends StatelessWidget {
                 child: RaisedButton(
                   shape: RoundedRectangleBorder(
                       borderRadius: new BorderRadius.circular(30.0)),
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Msg(
-                            "Request Send \n We will contact \n you soon",
-                            "profile")),
-                  ),
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => DatesForm()),),
                   color: Colors.black,
                   child: Container(
                     padding: const EdgeInsets.all(10.0),
                     child: Text('Elegir Nuevas Fechas',
+                        style: TextStyle(fontSize: 20, color: Colors.white)),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class DatesForm extends StatefulWidget {
+  @override
+  DatesFormState createState() => DatesFormState();
+}
+
+class DatesFormState extends State<DatesForm> {
+  final data = [
+    "https://www.kayak.com.mx/news/wp-content/uploads/sites/29/2018/08/cenote_dos_ojos.jpg",
+  ];
+
+
+  var fechasfinales =[];
+
+
+  var fdate = new DateFormat('dd MMMM');
+  var ftime = new DateFormat('h:mm a');
+
+
+  List<Widget> Opciones(){
+    return this.fechasfinales.asMap()
+        .map((i, x) => MapEntry(
+        i, 
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Container(margin:EdgeInsets.only(bottom: 15.0,top: 15.0),child: Text("Opción "+(i+1).toString(),style: TextStyle(fontWeight: FontWeight.bold,fontSize: 22.0),)),
+                IconButton(icon: Icon(Icons.cancel,color: Theme.of(context).accentColor,), onPressed: ()=>DeleteDate(x))
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 10.0,horizontal: 30.0),
+                width: 150.0,
+                decoration: BoxDecoration(color: Color.fromARGB(255, 250, 231, 229),borderRadius:BorderRadius.all(Radius.circular(35.0))),
+                child: Text(this.fdate.format(x['date']),style: TextStyle( fontWeight: FontWeight.bold,fontSize: 20.0,color: Theme.of(context).accentColor),),
+              ),
+                Container(
+                  padding: EdgeInsets.symmetric(vertical: 10.0,horizontal: 30.0),
+                  width: 150.0,
+                  decoration: BoxDecoration(color: Color.fromARGB(255, 250, 231, 229),borderRadius:BorderRadius.all(Radius.circular(35.0))),
+                  child: Text(ftime.format(DateTime(new DateTime.now().year, new DateTime.now().month, new DateTime.now().day, x['time'].hour, x['time'].minute)),style: TextStyle( fontWeight: FontWeight.bold,fontSize: 20.0,color: Theme.of(context).accentColor)),
+                ),
+            ],)
+          ],
+        )
+    )).values.toList();
+  }
+
+
+  Future<Null> ChooseDate(BuildContext contex) async {
+    final DateTime picked1 = await showDatePicker(context: context,
+        initialDate: DateTime.now().add(Duration(seconds: 1)),
+        firstDate: DateTime.now(),
+        lastDate: DateTime(2100));
+
+    final TimeOfDay picked2 = await showTimePicker(
+        context: context, initialTime: TimeOfDay.now());
+
+    if (picked1 != null) {
+      setState(() {
+        this.fechasfinales.add( {"date":picked1,"time":picked2});
+      });
+    }
+  }
+
+  void DeleteDate(i){
+    setState(() {
+      this.fechasfinales.remove(i);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: ListView(
+        shrinkWrap: true,
+        children: [
+          Column(
+            children: [
+              Container(
+                height: 230.0,
+                child: Stack(children: <Widget>[
+                  Container(
+                    decoration: new BoxDecoration(
+                      image: new DecorationImage(
+                        image: new NetworkImage(this.data[0]),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.all(15.0),
+                    child: new Column(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text("Cenotes de Homún",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 26.0,
+                                fontWeight: FontWeight.bold)),
+                        Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Container(
+                              margin: EdgeInsets.symmetric(
+                                  vertical: 0.0, horizontal: 5.0),
+                              child: Text("26 Services Provided",
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 14.0)),
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(35.0),
+                                  ),
+                                  color: Color.fromARGB(127, 255, 255, 255)),
+                              padding: EdgeInsets.all(7.0),
+                              margin: EdgeInsets.symmetric(
+                                  vertical: 0.0, horizontal: 5.0),
+                              child: Text("Homún, Yucatan",
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 16.0)),
+                            ),
+                          ],
+                        ),
+
+                        //new Container()
+                      ],
+                    ),
+                  )
+                ]),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(30.0, 20.0, 30.0, 70.0),
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      margin: EdgeInsets.only(top: 8.0,bottom: 15.0),
+                      child: Row(
+
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text("#G224412",
+                                  style: TextStyle(
+                                      fontSize: 28.0,
+                                      fontWeight: FontWeight.bold)),
+                              Row(
+                                children: <Widget>[
+                                  Icon(Icons.place),
+                                  Text("Mérida, Yucatán",
+                                      style: TextStyle(fontSize: 16.0)),
+                                ],
+                              )
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text("Fecha",
+                                style: TextStyle(
+                                    fontSize: 22.0,
+                                    fontWeight: FontWeight.bold)),
+                            Container(
+                              margin: EdgeInsets.symmetric(),
+                              child: RaisedButton(
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                    new BorderRadius.circular(30.0)),
+                                onPressed: () => showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now()
+                                        .add(Duration(seconds: 1)),
+                                    firstDate: DateTime.now(),
+                                    lastDate: DateTime(2100)),
+                                color: Color.fromARGB(255, 250, 231, 229),
+                                child: Container(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Text(
+                                    '8 julio',
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        color: Theme.of(context).accentColor,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text("Hora",
+                                style: TextStyle(
+                                    fontSize: 22.0,
+                                    fontWeight: FontWeight.bold)),
+                            RaisedButton(
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                  new BorderRadius.circular(30.0)),
+                              onPressed: () => showTimePicker(
+                                  context: context,
+                                  initialTime: TimeOfDay.now()),
+                              color: Color.fromARGB(255, 250, 231, 229),
+                              child: Container(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Text('08:00 am',
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        color: Theme.of(context).accentColor,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                    Container(
+                      margin: EdgeInsets.symmetric(vertical: 15.0),
+                      child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        ButtonTheme(
+                          minWidth: 300.0,
+                          child: RaisedButton(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: new BorderRadius.circular(30.0)),
+                            onPressed: () => ChooseDate(context) ,
+                            color: Theme.of(context).accentColor,
+                            child: Container(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Text('Añadir opción',
+                                  style: TextStyle(fontSize: 20, color: Colors.white)),
+                            ),
+                          ),
+                        )
+                      ],
+                  ),
+                    ),
+                    Container(margin: EdgeInsets.only(bottom: 75.0), child: Column(children: Opciones(),)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      bottomSheet: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              ButtonTheme(
+                minWidth: 300.0,
+                child: RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: new BorderRadius.circular(30.0)),
+                  onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Chat())),
+                  color: Theme.of(context).accentColor,
+                  child: Container(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Text('Enviar nuevas fechas',
+                        style: TextStyle(fontSize: 20, color: Colors.white)),
+                  ),
+                ),
+              )
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              ButtonTheme(
+                minWidth: 300.0,
+                child: RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: new BorderRadius.circular(30.0)),
+                  onPressed: () => Navigator.pop(context),
+                  color: Colors.black,
+                  child: Container(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Text('Cancelar',
                         style: TextStyle(fontSize: 20, color: Colors.white)),
                   ),
                 ),
