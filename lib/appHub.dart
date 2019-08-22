@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'screens/Splash.dart';
+import 'screens/login.dart';
+import 'screens/general.dart';
+
 class AppHub extends StatelessWidget {
 
   @override
@@ -11,8 +13,12 @@ class AppHub extends StatelessWidget {
         primaryColor:  Color.fromARGB(255,220,86,73),
         accentColor:    Color.fromARGB(255,220,86,73),
       ),
+      routes: {
+        '/home':(context) => new General(),
+        '/': (context) => new Login(),
+      },
       debugShowCheckedModeBanner: false,
-      home: Splash(),
+      initialRoute: '/',
     );
   }
 }
