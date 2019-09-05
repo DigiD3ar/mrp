@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
 import 'general.dart';
+import '../dal.dart';
+import 'dart:convert';
 
-class Login extends StatelessWidget {
+class Login extends StatefulWidget {
+  @override
+  _LoginState createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
+
+  final Dal dal = new Dal();
+  final pass = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,6 +55,7 @@ class Login extends StatelessWidget {
                     )),
                 Container(
                   child: TextField(
+                    controller: this.pass,
                     keyboardType: TextInputType.text,
                     style: TextStyle(
                         fontSize: 25,
@@ -54,7 +66,11 @@ class Login extends StatelessWidget {
                       fillColor: Colors.white,
                       contentPadding: EdgeInsets.symmetric(vertical: 8.0),
                       border: new OutlineInputBorder(borderRadius: const BorderRadius.all(const Radius.circular(35.0),), borderSide: BorderSide(width: 0.0, style: BorderStyle.none)),),
-                    onEditingComplete:()=>Navigator.pushNamed(context, '/home'),
+                    onEditingComplete:()=>
+                    {
+                      dal.login(pass.text).then((x)=>Navigator.pushNamed(context, General.routeName,arguments:ScreenArguments(json.decode(x.body)['data'])))
+
+                    },
                   ),
                 )
               ],

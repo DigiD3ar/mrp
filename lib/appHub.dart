@@ -14,7 +14,7 @@ class AppHub extends StatelessWidget {
         accentColor:    Color.fromARGB(255,220,86,73),
       ),
       routes: {
-        '/home':(context) => new General(),
+        General.routeName: (context) => General(),
         '/': (context) => new Login(),
       },
       debugShowCheckedModeBanner: false,

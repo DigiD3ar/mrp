@@ -5,14 +5,26 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:intl/intl.dart';
 
+
+
+class ScreenArguments {
+  final data;
+
+  ScreenArguments(this.data);
+}
+
 class General extends StatefulWidget {
+
+  static const routeName = '/General';
+
+
   @override
   _GeneralState createState() => _GeneralState();
 }
 
 class _GeneralState extends State<General> {
   int index = 0;
-  List<Widget> screens = [Historial(), Peticiones(), Profile()];
+  List<Widget> screens;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -22,6 +34,13 @@ class _GeneralState extends State<General> {
 
   @override
   Widget build(BuildContext context) {
+
+
+    final ScreenArguments args = ModalRoute.of(context).settings.arguments;
+    this.screens  = [Historial(args.data), Peticiones(), Profile()];
+
+
+
     return MediaQuery.removePadding(
       context: context,
       removeTop: true,
@@ -284,6 +303,12 @@ class Content extends StatelessWidget {
 //catalogo
 
 class Historial extends StatelessWidget {
+
+
+  final info;
+
+  Historial(this.info);
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -313,26 +338,7 @@ class Historial extends StatelessWidget {
                     ),
                   ),
                   Expanded(
-                      child: Tarjeta("solicitudes", [
-                    {
-                      'idNumber': "#G224412",
-                      'titulo': "Cenotes de Homún",
-                      'fecha': "8 Julio",
-                      'status': "Esperando confirmacion"
-                    },
-                    {
-                      'idNumber': "#G224412",
-                      'titulo': "Cenotes de Homún",
-                      'fecha': "8 Julio",
-                      'status': "Esperando confirmacion"
-                    },
-                    {
-                      'idNumber': "#G224412",
-                      'titulo': "Cenotes de Homún",
-                      'fecha': "8 Julio",
-                      'status': "Esperando confirmacion"
-                    }
-                  ])),
+                      child: Tarjeta("solicitudes",this.info )),
                 ],
               )),
         ));
@@ -698,7 +704,10 @@ class Tarjeta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(this.datos);
+    if(this.datos!=null)
     return ListView.builder(
+      itemCount: this.datos['solicitudes'].length,
       itemBuilder: (context, position) {
         if (this.tipo == "solicitudes") {
           return InkWell(
@@ -706,15 +715,17 @@ class Tarjeta extends StatelessWidget {
                     context,
                     MaterialPageRoute(builder: (context) => ServiceForm()),
                   ),
-              child: TarjetSolicitud(this.datos[position]));
+              child: TarjetSolicitud(this.datos['solicitudes'][position]));
         } else if (this.tipo == "historial") {
-          return InkWell(
+           InkWell(
               onTap: (this.datos[position]['status']=="Cancelado")? ()=>true : () => Navigator.push(context, MaterialPageRoute(builder: (context) => ServiceDetail()),),
               child: TarjetHistorial(this.datos[position],context));
         }
       },
-      itemCount: this.datos.length,
+
     );
+    else
+      return Center(child:  CircularProgressIndicator());
   }
 }
 
