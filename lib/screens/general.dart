@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:intl/intl.dart';
 import '../dal.dart';
+import 'dart:convert';
 
 
 
@@ -38,7 +39,7 @@ class _GeneralState extends State<General> {
 
 
     final ScreenArguments args = ModalRoute.of(context).settings.arguments;
-    this.screens  = [Historial(args.data), Peticiones(args.data), Profile()];
+    this.screens  = [Historial(args.data), Peticiones(args.data), Profile(args.data)];
 
 
 
@@ -74,6 +75,12 @@ class _GeneralState extends State<General> {
 //pantalla de perfil
 
 class Profile extends StatelessWidget {
+
+  final data;
+
+  Profile(this.data);
+
+
   @override
   Widget build(BuildContext context) {
     return ListView(shrinkWrap: true, children: [
@@ -88,7 +95,7 @@ class Profile extends StatelessWidget {
                 ])),
             Padding(
               padding: const EdgeInsets.all(20.0),
-              child: Content(),
+              child: Content(data),
             ),
           ],
         ),
@@ -179,6 +186,13 @@ class Header extends StatelessWidget {
 }
 
 class Content extends StatelessWidget {
+
+
+
+  final data;
+
+  Content(this.data);
+
   static final CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(21.034129, -89.600022),
     zoom: 15,
@@ -200,7 +214,7 @@ class Content extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    "Juan Solis Castillo",
+                   this.data['pro']['person_name'],
                     textScaleFactor: 1.1,
                     style: TextStyle(fontSize: 28.0),
                   ),
@@ -275,8 +289,8 @@ class Content extends StatelessWidget {
                   child: RichText( text:TextSpan(
                       style: DefaultTextStyle.of(context).style,
                       children: [
-                        TextSpan(text: "Ubicacion ", style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
-                        TextSpan(text: ": Calle 9 #000 x 22 y 22. Homún Centro, Yucatán", style: TextStyle(fontSize: 18.0))
+                        TextSpan(text: "Ubicacion :", style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
+                        TextSpan(text:  this.data['pro']['ubicacion'], style: TextStyle(fontSize: 18.0))
                       ]),
             )))
           ],
@@ -366,7 +380,6 @@ class PeticionesState extends State<Peticiones> {
 
   @override
   Widget build(BuildContext context) {
-    print("here ${widget.datos}");
     return SafeArea(
         child: Padding(
             padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 15.00),
@@ -440,13 +453,27 @@ class PeticionesState extends State<Peticiones> {
 }
 
 class Tarjeta extends StatelessWidget {
-  final tipo;
-  final datos;
+  var tipo;
+  var datos;
 
-  Tarjeta(this.tipo, this.datos);
+  Tarjeta(type,info){
+    print("hi ${info}");
+
+    this.tipo = type;
+    if(type =="solicitudes" )
+      if(info['solicitudes'].length !=0 )
+        this.datos = info['solicitudes'].values.toList(growable:false);
+      else
+        this.datos = [];
+    else
+      this.datos = info;
+
+
+  }
   var formatter = new DateFormat('d MMMM');
 
   Widget TarjetSolicitud(data) {
+    print(data);
     return Card(
       semanticContainer: false,
       clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -472,7 +499,7 @@ class Tarjeta extends StatelessWidget {
                             fontSize: 18, fontWeight: FontWeight.bold))),
                 Container(
                     margin: EdgeInsets.only(top: 3.0, bottom: 3.0),
-                    child: Text(data['name'],
+                    child: Text(data['address'],
                         textScaleFactor: 1.1,
                         style: TextStyle(
                             fontSize: 9, fontWeight: FontWeight.bold))),
@@ -688,26 +715,20 @@ class Tarjeta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("yo ${this.datos}");
+    print("yoyo ${this}");
+
     if(this.datos!=null)
         return ListView.builder(
           itemCount: this.datos.length,
           itemBuilder: (context, position) {
             if (this.tipo == "solicitudes") {
-              if(this.datos['solicitudes'].length!=0)
-
-                return InkWell(
-                  onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => ServiceForm(this.datos['solicitudes'][position])),
-                      ),
-                  child: TarjetSolicitud(this.datos['solicitudes'][position]));
-              else
+              if(this.datos.length!= 0) {
+                return InkWell(onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ServiceForm(this.datos[position])),), child: TarjetSolicitud(this.datos[position]));
+              }else {
                 Text("no hay solicitudes, por el momento");
+              }
             } else if (this.tipo == "historial") {
-             return  InkWell(
-                  onTap: (this.datos[position]['status']=="Cancelado")? ()=>true : () => Navigator.push(context, MaterialPageRoute(builder: (context) => ServiceDetail()),),
-                  child: TarjetHistorial(this.datos[position],context));
+             return  InkWell(onTap: (this.datos[position]['status']=="Cancelado")? ()=>true : () => Navigator.push(context, MaterialPageRoute(builder: (context) => ServiceDetail()),), child: TarjetHistorial(this.datos[position],context));
             }
           },
     
