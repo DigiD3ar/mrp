@@ -50,5 +50,19 @@ class Dal {
     }
   }
 
+  acceptRequest(String id) async{
+    var url ='http://clientes.locker.com.mx/mrback/public/api/proveedor/request/${id}/confirm';
+    final response = await http.post(url);
+
+    if (response.statusCode == 200) {
+//      return LoginUsuarios.fromJson(json.decode(response.body));
+
+      return json.decode(response.body);
+
+    } else {
+      // If that response was not OK, throw an error.
+      throw Exception('Failed to load post');
+    }
+  }
 
 }
