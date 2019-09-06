@@ -457,7 +457,6 @@ class Tarjeta extends StatelessWidget {
   var datos;
 
   Tarjeta(type,info){
-    print("hi ${info}");
 
     this.tipo = type;
     if(type =="solicitudes" )
@@ -473,7 +472,6 @@ class Tarjeta extends StatelessWidget {
   var formatter = new DateFormat('d MMMM');
 
   Widget TarjetSolicitud(data) {
-    print(data);
     return Card(
       semanticContainer: false,
       clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -715,7 +713,6 @@ class Tarjeta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("yoyo ${this}");
 
     if(this.datos!=null)
         return ListView.builder(
@@ -1927,14 +1924,16 @@ class DatesForm extends StatefulWidget {
 }
 
 class DatesFormState extends State<DatesForm> {
-  final data = [
-    "https://www.kayak.com.mx/news/wp-content/uploads/sites/29/2018/08/cenote_dos_ojos.jpg",
-  ];
+
+  Dal dal = new Dal();
 
   var fechasfinales = [];
 
   var fdate = new DateFormat('dd MMMM');
   var ftime = new DateFormat('h:mm a');
+  var Rdate = new DateFormat('y-M-d');
+  var Rtime = new DateFormat('h:mm:s');
+
 
   List<Widget> Opciones() {
     return this
@@ -2039,8 +2038,16 @@ class DatesFormState extends State<DatesForm> {
     });
   }
 
+   sendDates()  {
+    var fechas =  jsonEncode({'date_options':this.fechasfinales.map((x)=>"${Rdate.format(x['date']).toString()} ${Rtime.format(DateTime(2020, 01, 01, x['time'].hour, x['time'].minute)).toString()}" ).toList()});
+    dal.offerDates(widget.info['request_id'],fechas).then((x)=>(x['success'])? Navigator.pop(context) : print(x));
+      //Navigator.push(context, MaterialPageRoute(builder: (context) => Chat()));
+
+  }
+
   @override
   Widget build(BuildContext context) {
+    print(widget.info);
     return MediaQuery.removePadding(
       context: context,
       removeTop: true,
@@ -2056,7 +2063,7 @@ class DatesFormState extends State<DatesForm> {
                     Container(
                       decoration: new BoxDecoration(
                         image: new DecorationImage(
-                          image: new NetworkImage(this.data[0]),
+                          image: new NetworkImage(widget.info['cover']),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -2068,7 +2075,7 @@ class DatesFormState extends State<DatesForm> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text("Cenotes de Homún",
+                          Text(widget.info['name'],
                               textScaleFactor: 1.15,
                               style: TextStyle(
                                   color: Colors.white,
@@ -2122,7 +2129,7 @@ class DatesFormState extends State<DatesForm> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                Text("#G224412",
+                                Text("#${widget.info['client_folio']}",
                                     textScaleFactor: 1.1,
                                     style: TextStyle(
                                         fontSize: 24.0,
@@ -2169,7 +2176,7 @@ class DatesFormState extends State<DatesForm> {
                                   child: Container(
                                     padding: const EdgeInsets.all(10.0),
                                     child: Text(
-                                      '8 julio',
+                                      fdate.format(DateTime.parse(widget.info['event_date'])).toString(),
                                       textScaleFactor: 1.1,
                                       style: TextStyle(
                                           fontSize: 16,
@@ -2201,7 +2208,7 @@ class DatesFormState extends State<DatesForm> {
                                 color: Color.fromARGB(255, 250, 231, 229),
                                 child: Container(
                                   padding: const EdgeInsets.all(10.0),
-                                  child: Text('08:00 am',
+                                  child: Text(   ftime.format(DateTime.parse(widget.info['event_date'])).toString(),
                                       textScaleFactor: 1.1,
                                       style: TextStyle(
                                           fontSize: 16,
@@ -2262,8 +2269,7 @@ class DatesFormState extends State<DatesForm> {
                   child: RaisedButton(
                     shape: RoundedRectangleBorder(
                         borderRadius: new BorderRadius.circular(30.0)),
-                    onPressed: () => Navigator.push(
-                        context, MaterialPageRoute(builder: (context) => Chat())),
+                    onPressed:()=>this.sendDates(),
                     color: Theme.of(context).accentColor,
                     child: Container(
                       padding: const EdgeInsets.all(5.0),

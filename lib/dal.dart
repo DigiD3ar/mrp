@@ -65,4 +65,20 @@ class Dal {
     }
   }
 
+  Future<Map> offerDates(id,data) async {
+    print(data);
+    var url ='http://clientes.locker.com.mx/mrback/public/api/proveedor/request/${id}';
+    final response = await http.post(url, body:{"date_options":data});
+
+    print(response.body);
+    if (response.statusCode == 200) {
+
+      return json.decode(response.body);
+
+    } else {
+      // If that response was not OK, throw an error.
+      throw Exception('Failed to load post');
+    }
+  }
+
 }
