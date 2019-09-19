@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "9749616161",
+    "firebase_url": "https://meridarentals-1565365709412.firebaseio.com",
+    "project_id": "meridarentals-1565365709412",
+    "storage_bucket": "meridarentals-1565365709412.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:9749616161:android:6acb2e623e9bbfa1fcf560",
+        "android_client_info": {
+          "package_name": "com.lockerag.merida_rentals"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "9749616161-ohb7v5v2ufcsen5r7e2dhg59offkbsog.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUm3Uofq3uOnn8Sl82H5IcMxJIn9rNKSM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "9749616161-ohb7v5v2ufcsen5r7e2dhg59offkbsog.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:9749616161:android:8df558c495e8f4adfcf560",
+        "android_client_info": {
+          "package_name": "com.lockerag.merida_rentals_provider"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "9749616161-ohb7v5v2ufcsen5r7e2dhg59offkbsog.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUm3Uofq3uOnn8Sl82H5IcMxJIn9rNKSM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "9749616161-ohb7v5v2ufcsen5r7e2dhg59offkbsog.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

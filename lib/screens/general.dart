@@ -6,7 +6,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:intl/intl.dart';
 import '../dal.dart';
 import 'dart:convert';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:async';
 
 
 class ScreenArguments {
@@ -2566,118 +2567,77 @@ class ServiceDetail extends StatelessWidget {
 
 //chat
 
-class Chat extends StatelessWidget {
-  final data = [
-    {'date': "8:00 AM", 'msg': "hi", 'id': "15"},
-    {'date': "9:00 AM", 'msg': "hi", 'id': "14"},
-    {'date': "9:10 AM", 'msg': "how are you?", 'id': "15"},
-    {'date': "9:14 AM", 'msg': "im fine", 'id': "14"},
-    {
-      'date': "8:00 AM",
-      'msg': "Are they childrens who doesn’t know how to swim?",
-      'id': "15"
-    },
-    {'date': "9:00 AM", 'msg': "Hi! Yes, my younger son. He’s 4", 'id': "14"},
-    {'date': "9:10 AM", 'msg': "we have life jackets", 'id': "15"},
-    {'date': "9:14 AM", 'msg': "are there food stands nearby?", 'id': "14"},
-    {
-      'date': "8:00 AM",
-      'msg':
-          "There is no around the cenote, but there are restaurants in a nearby town, we can still stop for snacks along the way, if you like",
-      'id': "15"
-    },
-    {'date': "8:00 AM", 'msg': "perfect, is the cenote very deep?", 'id': "14"},
-  ];
+class Chat extends StatefulWidget{
+  @override
+  _ChatState createState() => _ChatState();
+
+
+
+}
+
+
+class _ChatState extends State<Chat> {
+
+  final myController = TextEditingController();
+  Stream<DocumentSnapshot> _stream;
+
+  DocumentReference get messages => Firestore.instance.collection('chats').document('Dj45h8');
+
+
+  Future<void> _addMessage() async {
+    if(myController.value.text!=""){
+      var now = new DateTime.now();
+      var formatter = new DateFormat('dd-MM-yyyy H:m:s');
+      await messages.setData(<String, dynamic>{now.millisecondsSinceEpoch.toString():{'msg':myController.value.text,'time':formatter.format(now).toString(),'type':'provider'}},merge: true);
+      myController.clear();
+    }
+  }
+
+  @override
+  void initState() {
+    _stream =  Firestore.instance.collection('chats').document('Dj45h8').snapshots();
+    super.initState();
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
+      appBar: AppBar(
+        title: Text("chat"),
+      ),
+      body: Center(
         child: Column(
-          children: [
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  IconButton(
-                      icon: Icon(
-                        Icons.chevron_left,
-                        color: Theme.of(context).accentColor,
-                        size: 30.0,
-                      ),
-                      onPressed: () => Navigator.pop(context)),
-                  Text("#G224412",
-                      textScaleFactor: 1.1,
-                      style: TextStyle(
-                          fontSize: 28.0,
-                          color: Theme.of(context).accentColor,
-                          fontWeight: FontWeight.w800))
-                ],
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                  itemCount: this.data.length,
-                  itemBuilder: (context, position) {
-                    return Padding(
-                      padding: (position == 0 && position == this.data.length)
-                          ? EdgeInsets.symmetric(
-                              vertical: 35.0, horizontal: 20.0)
-                          : EdgeInsets.symmetric(
-                              vertical: 8.0, horizontal: 20.0),
-                      child: Row(
-                        mainAxisAlignment:
-                            (int.parse(this.data[position]['id']) == 15)
-                                ? MainAxisAlignment.start
-                                : MainAxisAlignment.end,
-                        children: [
-                          Flexible(
-                            child: Material(
-                              elevation: 4.0,
-                              shadowColor: Color.fromARGB(100, 0, 0, 0),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(15.0)),
-                              child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 10.0, horizontal: 25.0),
-                                  decoration:
-                                      (int.parse(this.data[position]['id']) ==
-                                              14)
-                                          ? BoxDecoration(
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(15.0)),
-                                              color:
-                                                  Theme.of(context).accentColor)
-                                          : BoxDecoration(
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(15.0)),
-                                              color: Colors.grey[200]),
-                                  child: Text(
-                                    this.data[position]['msg'] +
-                                        " \n " +
-                                        this.data[position]['date'],
-                                    textScaleFactor: 1.1,
-                                    style: TextStyle(
-                                        fontSize: 18.0,
-                                        color: (int.parse(this.data[position]
-                                                    ['id']) ==
-                                                14)
-                                            ? Colors.white
-                                            : Colors.grey),
-                                  )),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
+          children: <Widget>[
+            Flexible(
+              flex: 8,
+              child: Container(
+                  padding: const EdgeInsets.all(10.0),
+                  child: StreamBuilder<DocumentSnapshot>(
+                    stream: _stream,
+                    builder: (BuildContext context,
+                        AsyncSnapshot<DocumentSnapshot> snapshot) {
+                      if (snapshot.hasError)
+                        return new Text('Error: ${snapshot.error}');
+                      switch (snapshot.connectionState) {
+                        case ConnectionState.waiting:
+                          return Text("wait");
+                        default:
+                          return ListView(
+                            children: (snapshot.data.data == null)? [Container()] : snapshot.data.data.map((i,x)=>MapEntry(i,Text("${x['msg']} - ${x['time']}")))
+                                .values.toList(),
+                          );
+
+
+
+                      }
+                    },
+                  )),
             ),
             Container(
               decoration:
-                  BoxDecoration(color: Color.fromARGB(255, 245, 245, 245)),
+              const BoxDecoration(color: Color.fromARGB(255, 245, 245, 245)),
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -2685,16 +2645,17 @@ class Chat extends StatelessWidget {
                 children: <Widget>[
                   IconButton(icon: Icon(Icons.add), onPressed: () => true),
                   Container(
-                    width: 200,
+                    width: 250,
                     height: 50,
                     child: TextField(
+                      controller: myController,
                       decoration: InputDecoration(
                         helperText: "",
                         border: OutlineInputBorder(
                             borderSide:
-                                BorderSide(width: 0.0, style: BorderStyle.none),
+                            BorderSide(width: 0.0, style: BorderStyle.none),
                             borderRadius:
-                                BorderRadius.all(Radius.circular(25.0))),
+                            BorderRadius.all(Radius.circular(25.0))),
                         filled: true,
                         fillColor: Colors.white,
                         contentPadding: EdgeInsets.symmetric(
@@ -2707,20 +2668,23 @@ class Chat extends StatelessWidget {
                     child: Container(
                         decoration: ShapeDecoration(
                             shape: CircleBorder(),
-                            color: Theme.of(context).accentColor),
+                            color: Theme
+                                .of(context)
+                                .accentColor),
                         child: IconButton(
                             icon: Icon(Icons.send),
                             color: Colors.white,
-                            onPressed: () => true)),
+                            onPressed:_addMessage)),
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
     );
   }
+
 }
 
 //pago
