@@ -8,18 +8,15 @@ import '../dal.dart';
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
+import 'package:merida_rentals_provider/aux/User.dart';
 
 
-class ScreenArguments {
-  final data;
-
-  ScreenArguments(this.data);
-}
 
 class General extends StatefulWidget {
 
-  static const routeName = '/General';
+  User Info;
 
+  General({this.Info});
 
   @override
   _GeneralState createState() => _GeneralState();
@@ -39,8 +36,7 @@ class _GeneralState extends State<General> {
   Widget build(BuildContext context) {
 
 
-    final ScreenArguments args = ModalRoute.of(context).settings.arguments;
-    this.screens  = [Historial(args.data), Peticiones(args.data), Profile(args.data)];
+    this.screens  = [Historial(widget.Info.provider_folio), Peticiones(widget.Info.provider_folio), Profile(widget.Info)];
 
 
 
@@ -77,13 +73,14 @@ class _GeneralState extends State<General> {
 
 class Profile extends StatelessWidget {
 
-  final data;
+  final User data;
 
   Profile(this.data);
 
 
   @override
   Widget build(BuildContext context) {
+    print(this.data.person_name);
     return ListView(shrinkWrap: true, children: [
       Container(
         child: Column(
@@ -96,7 +93,7 @@ class Profile extends StatelessWidget {
                 ])),
             Padding(
               padding: const EdgeInsets.all(20.0),
-              child: Content(data),
+              child: Content(this.data),
             ),
           ],
         ),
@@ -190,7 +187,7 @@ class Content extends StatelessWidget {
 
 
 
-  final data;
+  final User data;
 
   Content(this.data);
 
@@ -203,6 +200,7 @@ class Content extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(this.data);
     return Column(
       children: <Widget>[
         Row(
@@ -215,7 +213,7 @@ class Content extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                   this.data['pro']['person_name'],
+                   this.data.person_name,
                     textScaleFactor: 1.1,
                     style: TextStyle(fontSize: 28.0),
                   ),
@@ -291,25 +289,11 @@ class Content extends StatelessWidget {
                       style: DefaultTextStyle.of(context).style,
                       children: [
                         TextSpan(text: "Ubicacion :", style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
-                        TextSpan(text:  this.data['pro']['ubicacion'], style: TextStyle(fontSize: 18.0))
+                        TextSpan(text: this.data.address, style: TextStyle(fontSize: 18.0))
                       ]),
             )))
           ],
         ),
-       /* ButtonTheme(
-          minWidth: 300.0,
-          child: RaisedButton(
-            shape: RoundedRectangleBorder(
-                borderRadius: new BorderRadius.circular(30.0)),
-            onPressed: () => Navigator.pop(context),
-            color: Theme.of(context).accentColor,
-            child: Container(
-              padding: const EdgeInsets.all(10.0),
-              child: Text('Log off',
-                  style: TextStyle(fontSize: 20, color: Colors.white)),
-            ),
-          ),
-        )*/
       ],
     );
   }
@@ -319,10 +303,11 @@ class Content extends StatelessWidget {
 
 class Historial extends StatelessWidget {
 
+  final id;
 
-  final info;
+  Historial(this.id);
 
-  Historial(this.info);
+ Dal dal = Dal();
 
   @override
   Widget build(BuildContext context) {
@@ -352,8 +337,18 @@ class Historial extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Expanded(
-                      child: Tarjeta("solicitudes",this.info )),
+                  FutureBuilder(
+                    future:dal.catalog(this.id),
+                    builder: (context,snapshot) {
+                      print(snapshot.data);
+                      if(snapshot.hasData)
+                      {
+                        return Expanded(child: Tarjeta("solicitudes", snapshot.data.data));
+                      } else {
+                        return Center(child:CircularProgressIndicator());
+                      }
+                    }
+                    ),
                 ],
               )),
         ));
@@ -372,6 +367,8 @@ class Peticiones extends StatefulWidget {
 
 class PeticionesState extends State<Peticiones> {
   int tipo = 0;
+
+  Dal dal = Dal();
 
   void changetype(valor) {
     setState(() {
@@ -443,10 +440,21 @@ class PeticionesState extends State<Peticiones> {
                     ],
                   ),
                 ),
-                Expanded(
-                  child: (this.tipo == 0)
-                      ? Tarjeta("historial",widget.datos['historial']['Confirmados'])
-                      : Tarjeta("historial",widget.datos['historial']['cancelados']),
+                FutureBuilder(
+                  future:dal.Historial(widget.datos),
+                   builder:(context,snapshot) {
+                     if (snapshot.hasData) {
+                       return Expanded(
+                         child: (this.tipo == 0)
+                             ? Tarjeta("historial",
+                             widget.datos['historial']['Confirmados'])
+                             : Tarjeta("historial",
+                             widget.datos['historial']['cancelados']),
+                       );
+                     }else{
+                       return Center(child:CircularProgressIndicator());
+                     }
+                   }
                 )
               ],
             )));
@@ -2579,26 +2587,50 @@ class Chat extends StatefulWidget{
 class _ChatState extends State<Chat> {
 
   final myController = TextEditingController();
-  Stream<DocumentSnapshot> _stream;
+  List<DocumentSnapshot> _stream;
 
-  DocumentReference get messages => Firestore.instance.collection('chats').document('Dj45h8');
+  CollectionReference get messages => Firestore.instance.collection('chats');
 
+  ScrollController _controller;
 
   Future<void> _addMessage() async {
     if(myController.value.text!=""){
       var now = new DateTime.now();
       var formatter = new DateFormat('dd-MM-yyyy H:m:s');
-      await messages.setData(<String, dynamic>{now.millisecondsSinceEpoch.toString():{'msg':myController.value.text,'time':formatter.format(now).toString(),'type':'provider'}},merge: true);
+      await messages.add({'msg':myController.value.text,'time':formatter.format(now).toString(),'type':'provider','service':'2'});
       myController.clear();
+      var temp = _controller.position.maxScrollExtent;
+      _controller.animateTo(temp, duration: Duration(milliseconds: 800), curve:Curves.ease );
     }
   }
 
   @override
   void initState() {
-    _stream =  Firestore.instance.collection('chats').document('Dj45h8').snapshots();
+
     super.initState();
+    _controller = ScrollController();
+
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+
+  Widget buildChat(data){
+    return (data['type']=="provider")? Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children:[
+          Container(margin:EdgeInsets.symmetric(vertical: 15.0),padding: EdgeInsets.symmetric(vertical:10.0,horizontal: 10.0),decoration: BoxDecoration( color: Colors.green,borderRadius:BorderRadius.all(Radius.circular(15.0))),child: Text(data['msg'],style: TextStyle(color: Colors.white))),]
+    )
+        :
+    Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children:[Container(margin:EdgeInsets.symmetric(vertical: 15.0),padding: EdgeInsets.symmetric(vertical:10.0,horizontal: 10.0),decoration: BoxDecoration( color: Colors.grey,borderRadius:BorderRadius.all(Radius.circular(15.0))),child: Text(data['msg'],style: TextStyle(color: Colors.white))),]
+    );
+  }
 
 
   @override
@@ -2614,24 +2646,22 @@ class _ChatState extends State<Chat> {
               flex: 8,
               child: Container(
                   padding: const EdgeInsets.all(10.0),
-                  child: StreamBuilder<DocumentSnapshot>(
-                    stream: _stream,
-                    builder: (BuildContext context,
-                        AsyncSnapshot<DocumentSnapshot> snapshot) {
-                      if (snapshot.hasError)
-                        return new Text('Error: ${snapshot.error}');
-                      switch (snapshot.connectionState) {
-                        case ConnectionState.waiting:
-                          return Text("wait");
-                        default:
-                          return ListView(
-                            children: (snapshot.data.data == null)? [Container()] : snapshot.data.data.map((i,x)=>MapEntry(i,Text("${x['msg']} - ${x['time']}")))
-                                .values.toList(),
-                          );
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: Firestore.instance.collection('chats').orderBy("time").where("service", isEqualTo: "2").snapshots(),
+                    builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                      if (snapshot.hasError){
+                            return Center(child: Text("hubo un error"),);
+                      }else if (!snapshot.hasData){
+                        return Center(child: CircularProgressIndicator());
+                      }else{
+                          List<DocumentSnapshot> temp = snapshot.data.documents;
 
-
-
+                        return ListView(controller:_controller,children:temp.map((doc)=>buildChat(doc)).toList());
                       }
+
+
+
+
                     },
                   )),
             ),

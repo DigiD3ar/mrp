@@ -1,18 +1,18 @@
 import 'package:http/http.dart' as http;
+import 'package:merida_rentals_provider/aux/User.dart';
 import 'dart:convert';
 
 class Dal {
 
 
-  login(String password) async{
+  Future<LoginData>login(String password) async{
     var url ='http://clientes.locker.com.mx/mrback/public/api/proveedor/login';
     var payload = {"provider_folio":password};
     final response = await http.post(url, body:payload);
 
     if (response.statusCode == 200) {
 //      return LoginUsuarios.fromJson(json.decode(response.body));
-
-      return response;
+      return LoginData.fromJson(json.decode(response.body));
 
     } else {
       // If that response was not OK, throw an error.
@@ -20,14 +20,27 @@ class Dal {
     }
   }
 
-  catalog(String id) async{
-    var url ='http://clientes.locker.com.mx/mrback/public/api/category/'+id;
+  Future<RequestData>catalog(String id) async{
+    var url ='http://clientes.locker.com.mx/mrback/public/api/proveedor/solicitudes';
+    var payload ={"provider_folio":id};
+    final response = await http.post(url,body:payload);
+
+    if (response.statusCode == 200) {
+      return RequestData.fromJson(json.decode(response.body));
+    } else {
+      // If that response was not OK, throw an error.
+      throw Exception('Failed to load post');
+    }
+  }
+
+  Future<HistoryData>Historial(String id) async{
+    var url ='http://clientes.locker.com.mx/mrback/public/api/proveedor/history/${id}';
+    var payload ={"provider_folio":id};
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-//      return LoginUsuarios.fromJson();
 
-      return response;
+      return HistoryData.fromJson(json.decode(response.body));
 
     } else {
       // If that response was not OK, throw an error.

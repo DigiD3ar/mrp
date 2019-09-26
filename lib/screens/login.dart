@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'general.dart';
 import '../dal.dart';
 import 'dart:convert';
+import 'package:merida_rentals_provider/aux/User.dart';
+
 
 class Login extends StatefulWidget {
   @override
@@ -12,6 +14,11 @@ class _LoginState extends State<Login> {
 
   final Dal dal = new Dal();
   final pass = TextEditingController();
+
+  void attempLogin()async {
+    await  dal.login(pass.text).then((LoginData x)=> (x.success)? Navigator.pushNamed(context,'/provider',arguments:x.data): null);
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,11 +73,7 @@ class _LoginState extends State<Login> {
                       fillColor: Colors.white,
                       contentPadding: EdgeInsets.symmetric(vertical: 8.0),
                       border: new OutlineInputBorder(borderRadius: const BorderRadius.all(const Radius.circular(35.0),), borderSide: BorderSide(width: 0.0, style: BorderStyle.none)),),
-                    onEditingComplete:()=>
-                    {
-                      dal.login(pass.text).then((x)=>Navigator.pushNamed(context, General.routeName,arguments:ScreenArguments(json.decode(x.body)['data'])))
-
-                    },
+                    onEditingComplete:attempLogin,
                   ),
                 )
               ],

@@ -13,9 +13,19 @@ class AppHub extends StatelessWidget {
         primaryColor:  Color.fromARGB(255,220,86,73),
         accentColor:    Color.fromARGB(255,220,86,73),
       ),
-      routes: {
-        General.routeName: (context) => General(),
-        '/': (context) => new Login(),
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '/provider':
+            {
+              return MaterialPageRoute(builder: (_) => General(Info:settings.arguments));
+            }
+          case'/':
+            {
+              return MaterialPageRoute(builder: (_) => Login());
+            }
+          default:
+            return null;
+        }
       },
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
