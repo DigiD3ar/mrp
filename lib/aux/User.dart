@@ -149,7 +149,6 @@ class RequestData{
 
     var list = parsedJson['data']['solicitudes'] as List;
 
-
     return RequestData(
         success: parsedJson['success'],
         message : parsedJson['message'],
@@ -165,13 +164,16 @@ class RequestInfo{
   String client_folio;
   String status;
   String event_date;
-  int name;
+  String name;
   String address;
+  String cover;
+  String total;
 
 
-  RequestInfo({this.request_id,this.service_id,this.client_folio,this.status,this.event_date,this.name,this.address});
+  RequestInfo({this.request_id,this.service_id,this.client_folio,this.status,this.event_date,this.name,this.address,this.cover,this.total});
 
   factory RequestInfo.fromJson(Map<String, dynamic> parsedJson){
+    print(parsedJson['total']);
     return RequestInfo(
         request_id:parsedJson['request_id'],
         service_id:parsedJson['service_id'],
@@ -179,7 +181,9 @@ class RequestInfo{
         status:parsedJson['status'],
         event_date:parsedJson['event_date'],
         name:parsedJson['name'],
-        address:parsedJson['address']
+        address:parsedJson['address'],
+        cover:parsedJson['cover'],
+        total:parsedJson['total']
     );
   }
 

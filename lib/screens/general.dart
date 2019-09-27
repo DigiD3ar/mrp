@@ -339,11 +339,12 @@ class Historial extends StatelessWidget {
                   ),
                   FutureBuilder(
                     future:dal.catalog(this.id),
-                    builder: (context,snapshot) {
-                      print(snapshot.data);
+                    builder: (context, AsyncSnapshot<RequestData> snapshot){
                       if(snapshot.hasData)
                       {
-                        return Expanded(child: Tarjeta("solicitudes", snapshot.data.data));
+                        print(snapshot.data.data[0]);
+
+                        return Expanded(child: Tarjeta(tipo:"solicitudes",datos: snapshot.data.data));
                       } else {
                         return Center(child:CircularProgressIndicator());
                       }
@@ -446,10 +447,10 @@ class PeticionesState extends State<Peticiones> {
                      if (snapshot.hasData) {
                        return Expanded(
                          child: (this.tipo == 0)
-                             ? Tarjeta("historial",
-                             widget.datos['historial']['Confirmados'])
-                             : Tarjeta("historial",
-                             widget.datos['historial']['cancelados']),
+                             ? Tarjeta(tipo:"historial",
+                            datos: widget.datos['historial']['Confirmados'])
+                             : Tarjeta(tipo:"historial",
+                             datos:widget.datos['historial']['cancelados']),
                        );
                      }else{
                        return Center(child:CircularProgressIndicator());
@@ -465,19 +466,7 @@ class Tarjeta extends StatelessWidget {
   var tipo;
   var datos;
 
-  Tarjeta(type,info){
-
-    this.tipo = type;
-    if(type =="solicitudes" )
-      if(info['solicitudes'].length !=0 )
-        this.datos = info['solicitudes'].values.toList(growable:false);
-      else
-        this.datos = [];
-    else
-      this.datos = info;
-
-
-  }
+  Tarjeta({this.tipo,this.datos});
   var formatter = new DateFormat('d MMMM');
 
   Widget TarjetSolicitud(data) {
@@ -500,19 +489,19 @@ class Tarjeta extends StatelessWidget {
                       top: 3.0,
                       bottom: 3.0,
                     ),
-                    child: Text("#${data['client_folio']}",
+                    child: Text("#${data.client_folio}",
                         textScaleFactor: 1.1,
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold))),
                 Container(
                     margin: EdgeInsets.only(top: 3.0, bottom: 3.0),
-                    child: Text(data['address'],
+                    child: Text(data.address,
                         textScaleFactor: 1.1,
                         style: TextStyle(
                             fontSize: 9, fontWeight: FontWeight.bold))),
                 Container(
                     margin: EdgeInsets.only(top: 3.0, bottom: 9.0),
-                    child: Text(formatter.format(DateTime.parse(data['event_date'])),
+                    child: Text(formatter.format(DateTime.parse(data.event_date)),
                         textScaleFactor: 1.1,
                         style: TextStyle(
                           fontSize: 11,
@@ -535,7 +524,7 @@ class Tarjeta extends StatelessWidget {
                         borderRadius: BorderRadius.all(Radius.circular(35.0))),
                     padding: EdgeInsets.only(
                         top: 6.0, bottom: 6.0, left: 6.0, right: 6.0),
-                    child: Text(data['status'],
+                    child: Text(data.status,
                         textScaleFactor: 1.0,
                         style: TextStyle(fontSize: 10, color: Colors.white))),
               ],
@@ -722,7 +711,6 @@ class Tarjeta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     if(this.datos!=null)
         return ListView.builder(
           itemCount: this.datos.length,
@@ -1584,7 +1572,7 @@ class ServiceForm extends StatelessWidget {
                       Container(
                         decoration: new BoxDecoration(
                           image: new DecorationImage(
-                            image: new NetworkImage(this.data['cover']),
+                            image: new NetworkImage(this.data.cover),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -1596,7 +1584,7 @@ class ServiceForm extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.end,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text(this.data['name'],
+                            Text(this.data.name,
                                 textScaleFactor: 1.05,
                                 style: TextStyle(
                                     color: Colors.white,
@@ -1650,7 +1638,7 @@ class ServiceForm extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
-                                  Text("#${this.data['client_folio']}",
+                                  Text("#${this.data.client_folio}",
                                       textScaleFactor: 1.15,
                                       style: TextStyle(
                                           fontSize: 22.0,
@@ -1658,7 +1646,7 @@ class ServiceForm extends StatelessWidget {
                                   Row(
                                     children: <Widget>[
                                       Icon(Icons.place),
-                                      Text(this.data['address'],
+                                      Text(this.data.address,
                                           textScaleFactor: 1.1,
                                           style: TextStyle(fontSize: 14.0)),
                                     ],
@@ -1697,7 +1685,7 @@ class ServiceForm extends StatelessWidget {
                                     child: Container(
                                       padding: const EdgeInsets.all(10.0),
                                       child: Text(
-                                        fdate.format(DateTime.parse(this.data['event_date'])),
+                                        fdate.format(DateTime.parse(this.data.event_date)),
                                         textScaleFactor: 1.1,
                                         style: TextStyle(
                                             fontSize: 14,
@@ -1729,7 +1717,7 @@ class ServiceForm extends StatelessWidget {
                                   color: Color.fromARGB(255, 250, 231, 229),
                                   child: Container(
                                     padding: const EdgeInsets.all(10.0),
-                                    child: Text(ftime.format(DateTime.parse(this.data['event_date'])),
+                                    child: Text(ftime.format(DateTime.parse(this.data.event_date)),
                                         textScaleFactor: 1.1,
                                         style: TextStyle(
                                             fontSize: 14,
@@ -1817,8 +1805,7 @@ class ServiceForm extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              Text(
-                                "\$ ${this.data['total'].roundToDouble().toString()} USD",
+                              Text("\$ ${this.data.total} USD",
                                 textScaleFactor: 1.2,
                                 style: TextStyle(
                                   fontSize: 18.0,

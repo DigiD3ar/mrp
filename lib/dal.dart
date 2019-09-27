@@ -26,7 +26,8 @@ class Dal {
     final response = await http.post(url,body:payload);
 
     if (response.statusCode == 200) {
-      return RequestData.fromJson(json.decode(response.body));
+      var x = RequestData.fromJson(json.decode(response.body));
+      return x;
     } else {
       // If that response was not OK, throw an error.
       throw Exception('Failed to load post');
