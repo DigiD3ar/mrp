@@ -340,12 +340,11 @@ class Historial extends StatelessWidget {
                   FutureBuilder(
                     future:dal.catalog(this.id),
                     builder: (context,snapshot) {
-                      print(snapshot.data);
                       if(snapshot.hasData)
                       {
                         return Expanded(child: Tarjeta("solicitudes", snapshot.data.data));
                       } else {
-                        return Center(child:CircularProgressIndicator());
+                        return Expanded(child: Center(child:CircularProgressIndicator(backgroundColor: Colors.blueAccent,)));
                       }
                     }
                     ),
@@ -442,17 +441,12 @@ class PeticionesState extends State<Peticiones> {
                 ),
                 FutureBuilder(
                   future:dal.Historial(widget.datos),
-                   builder:(context,snapshot) {
+                   builder:(context, AsyncSnapshot<HistoryData>snapshot) {
                      if (snapshot.hasData) {
-                       return Expanded(
-                         child: (this.tipo == 0)
-                             ? Tarjeta("historial",
-                             widget.datos['historial']['Confirmados'])
-                             : Tarjeta("historial",
-                             widget.datos['historial']['cancelados']),
-                       );
+                       print(snapshot.data);
+                       return Expanded(child: (this.tipo == 0) ? Tarjeta("historial", snapshot.data.data.confir) : Tarjeta("historial",snapshot.data.data.cancel),);
                      }else{
-                       return Center(child:CircularProgressIndicator());
+                       return Expanded(child: Center(child:CircularProgressIndicator()));
                      }
                    }
                 )
@@ -465,19 +459,8 @@ class Tarjeta extends StatelessWidget {
   var tipo;
   var datos;
 
-  Tarjeta(type,info){
+  Tarjeta({this:tipo,this:datos});
 
-    this.tipo = type;
-    if(type =="solicitudes" )
-      if(info['solicitudes'].length !=0 )
-        this.datos = info['solicitudes'].values.toList(growable:false);
-      else
-        this.datos = [];
-    else
-      this.datos = info;
-
-
-  }
   var formatter = new DateFormat('d MMMM');
 
   Widget TarjetSolicitud(data) {
@@ -741,7 +724,7 @@ class Tarjeta extends StatelessWidget {
         );
 
     else
-      return Center(child:  CircularProgressIndicator());
+      return Center(child:  CircularProgressIndicator(backgroundColor: Colors.red,));
   }
 }
 

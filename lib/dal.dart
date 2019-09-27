@@ -39,7 +39,7 @@ class Dal {
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-
+      print(json.decode(response.body));
       return HistoryData.fromJson(json.decode(response.body));
 
     } else {
