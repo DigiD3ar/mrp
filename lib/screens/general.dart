@@ -339,10 +339,12 @@ class Historial extends StatelessWidget {
                   ),
                   FutureBuilder(
                     future:dal.catalog(this.id),
-                    builder: (context,snapshot) {
+                    builder: (context, snapshot){
                       if(snapshot.hasData)
                       {
-                        return Expanded(child: Tarjeta("solicitudes", snapshot.data.data));
+                        print(snapshot.data.data);
+
+                        return Expanded(child: Tarjeta(tipo:"solicitudes",datos: snapshot.data.data));
                       } else {
                         return Expanded(child: Center(child:CircularProgressIndicator(backgroundColor: Colors.blueAccent,)));
                       }
@@ -439,16 +441,17 @@ class PeticionesState extends State<Peticiones> {
                     ],
                   ),
                 ),
-                FutureBuilder(
-                  future:dal.Historial(widget.datos),
-                   builder:(context, AsyncSnapshot<HistoryData>snapshot) {
-                     if (snapshot.hasData) {
-                       print(snapshot.data);
-                       return Expanded(child: (this.tipo == 0) ? Tarjeta("historial", snapshot.data.data.confir) : Tarjeta("historial",snapshot.data.data.cancel),);
-                     }else{
-                       return Expanded(child: Center(child:CircularProgressIndicator()));
+                Expanded(
+                  child: FutureBuilder(
+                    future:dal.Historial(widget.datos),
+                     builder:(context, snapshot) {
+                       if (snapshot.hasData) {
+                        return (this.tipo == 0) ? Tarjeta(tipo:"historial",datos:snapshot.data.data.confir) : Tarjeta(tipo:"historial",datos:snapshot.data.data.cancel);
+                       }else{
+                         return Center(child:CircularProgressIndicator());
+                       }
                      }
-                   }
+                  ),
                 )
               ],
             )));
@@ -459,11 +462,14 @@ class Tarjeta extends StatelessWidget {
   var tipo;
   var datos;
 
-  Tarjeta({this:tipo,this:datos});
+
+  Tarjeta({this.tipo,this.datos});
+
 
   var formatter = new DateFormat('d MMMM');
 
   Widget TarjetSolicitud(data) {
+
     return Card(
       semanticContainer: false,
       clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -483,19 +489,19 @@ class Tarjeta extends StatelessWidget {
                       top: 3.0,
                       bottom: 3.0,
                     ),
-                    child: Text("#${data['client_folio']}",
+                    child: Text("#${data.client_folio}",
                         textScaleFactor: 1.1,
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold))),
                 Container(
                     margin: EdgeInsets.only(top: 3.0, bottom: 3.0),
-                    child: Text(data['address'],
+                    child: Text(data.address,
                         textScaleFactor: 1.1,
                         style: TextStyle(
                             fontSize: 9, fontWeight: FontWeight.bold))),
                 Container(
                     margin: EdgeInsets.only(top: 3.0, bottom: 9.0),
-                    child: Text(formatter.format(DateTime.parse(data['event_date'])),
+                    child: Text(formatter.format(DateTime.parse(data.event_date)),
                         textScaleFactor: 1.1,
                         style: TextStyle(
                           fontSize: 11,
@@ -518,7 +524,7 @@ class Tarjeta extends StatelessWidget {
                         borderRadius: BorderRadius.all(Radius.circular(35.0))),
                     padding: EdgeInsets.only(
                         top: 6.0, bottom: 6.0, left: 6.0, right: 6.0),
-                    child: Text(data['status'],
+                    child: Text(data.status,
                         textScaleFactor: 1.0,
                         style: TextStyle(fontSize: 10, color: Colors.white))),
               ],
@@ -535,7 +541,7 @@ class Tarjeta extends StatelessWidget {
   }
 
   Widget TarjetHistorial(data,context) {
-    if (data['status'] == "Cancelado") {
+    if (data.status == "Cancelado") {
       return Card(
         semanticContainer: false,
         clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -624,18 +630,18 @@ class Tarjeta extends StatelessWidget {
                         top: 3.0,
                         bottom: 3.0,
                       ),
-                      child: Text("#${data['client_folio']}",
+                      child: Text("#${data.client_folio}",
                           textScaleFactor: 1.15,
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold))),
                   Container(
                       margin: EdgeInsets.only(top: 3.0, bottom: 3.0),
-                      child: Text(data['address'],
+                      child: Text(data.name,
                           textScaleFactor: 1.1,
                           style: TextStyle(
                               fontSize: 12, fontWeight: FontWeight.bold))),
                   GestureDetector(
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Chat()),),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Chat(data.request_id)),),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -679,12 +685,12 @@ class Tarjeta extends StatelessWidget {
                               BorderRadius.all(Radius.circular(35.0))),
                       padding: EdgeInsets.only(
                           top: 6.0, bottom: 6.0, left: 6.0, right: 6.0),
-                      child: Text(data['status'],
+                      child: Text(data.status,
                           textScaleFactor: 1.15,
                           style: TextStyle(fontSize: 15, color: Colors.white))),
                   Container(
                       margin: EdgeInsets.only(top: 3.0, bottom: 9.0),
-                      child: Text(formatter.format(DateTime.parse(data['event_date'])),
+                      child: Text(formatter.format(DateTime.parse(data.event_date)),
                           style: TextStyle(
                             fontSize: 11,
                             color: Color.fromARGB(255, 220, 86, 73),
@@ -705,26 +711,30 @@ class Tarjeta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    if(this.datos!=null)
-        return ListView.builder(
-          itemCount: this.datos.length,
-          itemBuilder: (context, position) {
-            if (this.tipo == "solicitudes") {
-              if(this.datos.length!= 0) {
-                return InkWell(onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ServiceForm(this.datos[position])),), child: TarjetSolicitud(this.datos[position]));
-              }else {
-                Text("no hay solicitudes, por el momento");
-              }
-            } else if (this.tipo == "historial") {
-             return  InkWell(onTap: (this.datos[position]['status']=="Cancelado")? ()=>true : () => Navigator.push(context, MaterialPageRoute(builder: (context) => ServiceDetail()),), child: TarjetHistorial(this.datos[position],context));
+    return ListView.builder(
+        itemCount: this.datos.length,
+        itemBuilder: (context, position) {
+          if (this.tipo == "solicitudes") {
+            if (this.datos.length != 0) {
+              return InkWell(onTap: () =>
+                  Navigator.push(context, MaterialPageRoute(
+                      builder: (context) =>
+                          ServiceForm(this.datos[position])),),
+                  child: TarjetSolicitud(this.datos[position]));
+            } else {
+              Text("no hay solicitudes, por el momento");
             }
-          },
-    
-        );
-
-    else
-      return Center(child:  CircularProgressIndicator(backgroundColor: Colors.red,));
+          } else if (this.tipo == "historial") {
+            return InkWell(
+                onTap: (this.datos[position].status == "Cancelado")
+                    ? () => true
+                    : () =>
+                    Navigator.push(context, MaterialPageRoute(
+                        builder: (context) => ServiceDetail(this.datos[position])),),
+                child: TarjetHistorial(this.datos[position], context));
+          }
+        }
+    );
   }
 }
 
@@ -1567,7 +1577,7 @@ class ServiceForm extends StatelessWidget {
                       Container(
                         decoration: new BoxDecoration(
                           image: new DecorationImage(
-                            image: new NetworkImage(this.data['cover']),
+                            image: new NetworkImage(this.data.cover),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -1579,7 +1589,7 @@ class ServiceForm extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.end,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text(this.data['name'],
+                            Text(this.data.name,
                                 textScaleFactor: 1.05,
                                 style: TextStyle(
                                     color: Colors.white,
@@ -1633,7 +1643,7 @@ class ServiceForm extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
-                                  Text("#${this.data['client_folio']}",
+                                  Text("#${this.data.client_folio}",
                                       textScaleFactor: 1.15,
                                       style: TextStyle(
                                           fontSize: 22.0,
@@ -1641,7 +1651,7 @@ class ServiceForm extends StatelessWidget {
                                   Row(
                                     children: <Widget>[
                                       Icon(Icons.place),
-                                      Text(this.data['address'],
+                                      Text(this.data.address,
                                           textScaleFactor: 1.1,
                                           style: TextStyle(fontSize: 14.0)),
                                     ],
@@ -1680,7 +1690,7 @@ class ServiceForm extends StatelessWidget {
                                     child: Container(
                                       padding: const EdgeInsets.all(10.0),
                                       child: Text(
-                                        fdate.format(DateTime.parse(this.data['event_date'])),
+                                        fdate.format(DateTime.parse(this.data.event_date)),
                                         textScaleFactor: 1.1,
                                         style: TextStyle(
                                             fontSize: 14,
@@ -1712,7 +1722,7 @@ class ServiceForm extends StatelessWidget {
                                   color: Color.fromARGB(255, 250, 231, 229),
                                   child: Container(
                                     padding: const EdgeInsets.all(10.0),
-                                    child: Text(ftime.format(DateTime.parse(this.data['event_date'])),
+                                    child: Text(ftime.format(DateTime.parse(this.data.event_date)),
                                         textScaleFactor: 1.1,
                                         style: TextStyle(
                                             fontSize: 14,
@@ -1800,8 +1810,7 @@ class ServiceForm extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              Text(
-                                "\$ ${this.data['total'].roundToDouble().toString()} USD",
+                              Text("\$ ${this.data.total} USD",
                                 textScaleFactor: 1.2,
                                 style: TextStyle(
                                   fontSize: 18.0,
@@ -1862,7 +1871,7 @@ class ServiceForm extends StatelessWidget {
                   child: RaisedButton(
                     shape: RoundedRectangleBorder(
                         borderRadius: new BorderRadius.circular(30.0)),
-                    onPressed: () => dal.acceptRequest(this.data['request_id'].toString()).then((x)=> Navigator.pop(context)),
+                    onPressed: () => dal.acceptRequest(this.data.request_id.toString()).then((x)=> Navigator.pop(context)),
                     color: Theme.of(context).accentColor,
                     child: Container(
                       padding: const EdgeInsets.all(6.0),
@@ -2360,6 +2369,11 @@ class Msg extends StatelessWidget {
 }
 
 class ServiceDetail extends StatelessWidget {
+
+  final data;
+
+  ServiceDetail(this.data);
+
   final dformat = new DateFormat('dd MMMM');
   final hformat = new DateFormat('h:m a');
   static final CameraPosition _kGooglePlex = CameraPosition(
@@ -2392,7 +2406,7 @@ class ServiceDetail extends StatelessWidget {
                           ),
                           onPressed: () => Navigator.pop(context)),
                     ),
-                    Text("#G224412",
+                    Text("#${this.data.client_folio}",
                         textScaleFactor: 1.15,
                         style: TextStyle(
                             fontSize: 24.0,
@@ -2417,7 +2431,7 @@ class ServiceDetail extends StatelessWidget {
                       ),
                       Row(
                         children: <Widget>[
-                          Text("Cenotes en Homún",
+                          Text(this.data.name,
                               textScaleFactor: 1.2,
                               style: TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 26.0)),
@@ -2435,7 +2449,7 @@ class ServiceDetail extends StatelessWidget {
                           textScaleFactor: 1.1,
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 14.0)),
-                      Text("9 septiembre, 08:00 am",
+                      Text(this.data.event_date,
                           textScaleFactor: 1.1,
                           style: TextStyle(fontSize: 14.0, color: Colors.grey))
                     ],
@@ -2521,7 +2535,7 @@ class ServiceDetail extends StatelessWidget {
                         padding: EdgeInsets.symmetric(
                             vertical: 15.0, horizontal: 5.0),
                         child: Text(
-                          "Ubicacion : Calle 9 #000 x 22 y 22. Homún Centro, Yucatán",
+                          "Ubicacion : ${this.data.address}",
                           textScaleFactor: 1.15,
                           style: TextStyle(fontSize: 16.0),
                         ),
@@ -2559,6 +2573,12 @@ class ServiceDetail extends StatelessWidget {
 //chat
 
 class Chat extends StatefulWidget{
+
+  int Service;
+
+  Chat(this.Service);
+
+
   @override
   _ChatState createState() => _ChatState();
 
@@ -2580,7 +2600,7 @@ class _ChatState extends State<Chat> {
     if(myController.value.text!=""){
       var now = new DateTime.now();
       var formatter = new DateFormat('dd-MM-yyyy H:m:s');
-      await messages.add({'msg':myController.value.text,'time':formatter.format(now).toString(),'type':'provider','service':'2'});
+      await messages.add({'msg':myController.value.text,'time':formatter.format(now).toString(),'type':'provider','service':widget.Service});
       myController.clear();
       var temp = _controller.position.maxScrollExtent;
       _controller.animateTo(temp, duration: Duration(milliseconds: 800), curve:Curves.ease );
@@ -2630,7 +2650,8 @@ class _ChatState extends State<Chat> {
               child: Container(
                   padding: const EdgeInsets.all(10.0),
                   child: StreamBuilder<QuerySnapshot>(
-                    stream: Firestore.instance.collection('chats').orderBy("time").where("service", isEqualTo: "2").snapshots(),
+                    stream: Firestore.instance.collection('chats').orderBy("time")
+                        .orderBy("state").where("service", isEqualTo: widget.Service).snapshots(),
                     builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                       if (snapshot.hasError){
                             return Center(child: Text("hubo un error"),);

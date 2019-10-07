@@ -11,7 +11,7 @@ class Dal {
     final response = await http.post(url, body:payload);
 
     if (response.statusCode == 200) {
-//      return LoginUsuarios.fromJson(json.decode(response.body));
+
       return LoginData.fromJson(json.decode(response.body));
 
     } else {
@@ -24,7 +24,6 @@ class Dal {
     var url ='http://clientes.locker.com.mx/mrback/public/api/proveedor/solicitudes';
     var payload ={"provider_folio":id};
     final response = await http.post(url,body:payload);
-
     if (response.statusCode == 200) {
       return RequestData.fromJson(json.decode(response.body));
     } else {
@@ -33,17 +32,13 @@ class Dal {
     }
   }
 
-  Future<HistoryData>Historial(String id) async{
+  Future<HistoryData> Historial(String id) async{
     var url ='http://clientes.locker.com.mx/mrback/public/api/proveedor/history/${id}';
-    var payload ={"provider_folio":id};
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      print(json.decode(response.body));
       return HistoryData.fromJson(json.decode(response.body));
-
     } else {
-      // If that response was not OK, throw an error.
       throw Exception('Failed to load post');
     }
   }
@@ -65,16 +60,16 @@ class Dal {
 
   acceptRequest(String id) async{
     var url ='http://clientes.locker.com.mx/mrback/public/api/proveedor/request/${id}/confirm';
-    final response = await http.post(url);
+    final response = await http.get(url);
 
     if (response.statusCode == 200) {
 //      return LoginUsuarios.fromJson(json.decode(response.body));
-
+      print(json.decode(response.body)['data']);
       return json.decode(response.body);
 
     } else {
       // If that response was not OK, throw an error.
-      throw Exception('Failed to load post');
+      throw Exception("error");
     }
   }
 

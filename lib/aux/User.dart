@@ -70,13 +70,11 @@ class HistoryInfo{
   HistoryInfo({this.confir, this.cancel});
 
   factory HistoryInfo.fromJson(Map<String, dynamic> parsedJson){
-
-    var list = parsedJson['data']['Confirmados'] as List;
-    var list2 = parsedJson['data']['cancelados'] as List;
-
+    var list = parsedJson['Confirmados'] as List;
+    var list2 = parsedJson['cancelados'] as List;
     return HistoryInfo(
         confir: list.map((i)=>Confirmados.fromJson(i)).toList(),
-        cancel : list.map((i)=>Cancelados.fromJson(i)).toList()
+        cancel : list2.map((i)=>Cancelados.fromJson(i)).toList()
     );
   }
 }
@@ -89,13 +87,14 @@ class Confirmados {
   String client_folio;
   String status;
   String event_date;
-  int name;
+  String name;
   String address;
 
 
   Confirmados({this.request_id,this.service_id,this.client_folio,this.status,this.event_date,this.name,this.address});
 
   factory Confirmados.fromJson(Map<String, dynamic> parsedJson){
+
     return Confirmados(
         request_id:parsedJson['request_id'],
         service_id:parsedJson['service_id'],
@@ -116,7 +115,7 @@ class Cancelados {
   String client_folio;
   String status;
   String event_date;
-  int name;
+  String name;
   String address;
 
 
@@ -140,46 +139,50 @@ class Cancelados {
 class RequestData{
   bool success;
   String message;
-  List<RequestInfo> data;
+  List<dynamic> data;
 
   RequestData({this.success, this.message, this.data});
 
 
   factory RequestData.fromJson(Map<String, dynamic> parsedJson){
 
-    var list = parsedJson['data']['solicitudes'] as List;
-
+    var list = parsedJson['data']['solicitudes'].values;
+     var aux = list.map((i)=>RequestInfo.fromJson(i)).toList();
 
     return RequestData(
         success: parsedJson['success'],
         message : parsedJson['message'],
-        data : list.map((i)=>RequestInfo.fromJson(i)).toList()
+        data : aux
     );
   }
 }
 
 class RequestInfo{
 
-  int request_id;
-  int service_id;
+  String request_id;
+  String service_id;
   String client_folio;
   String status;
   String event_date;
-  int name;
+  String name;
   String address;
+  String cover;
+  String total;
 
 
-  RequestInfo({this.request_id,this.service_id,this.client_folio,this.status,this.event_date,this.name,this.address});
+  RequestInfo({this.request_id,this.service_id,this.client_folio,this.status,this.event_date,this.name,this.address,this.cover,this.total});
 
   factory RequestInfo.fromJson(Map<String, dynamic> parsedJson){
     return RequestInfo(
-        request_id:parsedJson['request_id'],
-        service_id:parsedJson['service_id'],
+        request_id:parsedJson['request_id'].toString(),
+        service_id:parsedJson['service_id'].toString(),
         client_folio:parsedJson['client_folio'],
         status:parsedJson['status'],
         event_date:parsedJson['event_date'],
         name:parsedJson['name'],
-        address:parsedJson['address']
+        address:parsedJson['address'],
+        cover:parsedJson['cover'].toString(),
+        total:parsedJson['total'].toString()
     );
   }
 
