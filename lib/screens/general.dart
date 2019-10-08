@@ -2041,7 +2041,7 @@ class DatesFormState extends State<DatesForm> {
 
    sendDates()  {
     var fechas =  jsonEncode({'date_options':this.fechasfinales.map((x)=>"${Rdate.format(x['date']).toString()} ${Rtime.format(DateTime(2020, 01, 01, x['time'].hour, x['time'].minute)).toString()}" ).toList()});
-    dal.offerDates(widget.info['request_id'],fechas).then((x)=>(x['success'])? Navigator.pop(context) : print(x));
+    dal.offerDates(widget.info.request_id,fechas).then((x)=>(x['success'])? Navigator.pop(context) : print(x));
       //Navigator.push(context, MaterialPageRoute(builder: (context) => Chat()));
 
   }
@@ -2064,7 +2064,7 @@ class DatesFormState extends State<DatesForm> {
                     Container(
                       decoration: new BoxDecoration(
                         image: new DecorationImage(
-                          image: new NetworkImage(widget.info['cover']),
+                          image: new NetworkImage(widget.info.cover),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -2076,7 +2076,7 @@ class DatesFormState extends State<DatesForm> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text(widget.info['name'],
+                          Text(widget.info.name,
                               textScaleFactor: 1.15,
                               style: TextStyle(
                                   color: Colors.white,
@@ -2130,7 +2130,7 @@ class DatesFormState extends State<DatesForm> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                Text("#${widget.info['client_folio']}",
+                                Text("#${widget.info.client_folio}",
                                     textScaleFactor: 1.1,
                                     style: TextStyle(
                                         fontSize: 24.0,
@@ -2177,7 +2177,7 @@ class DatesFormState extends State<DatesForm> {
                                   child: Container(
                                     padding: const EdgeInsets.all(10.0),
                                     child: Text(
-                                      fdate.format(DateTime.parse(widget.info['event_date'])).toString(),
+                                      fdate.format(DateTime.parse(widget.info.event_date)).toString(),
                                       textScaleFactor: 1.1,
                                       style: TextStyle(
                                           fontSize: 16,
@@ -2209,7 +2209,7 @@ class DatesFormState extends State<DatesForm> {
                                 color: Color.fromARGB(255, 250, 231, 229),
                                 child: Container(
                                   padding: const EdgeInsets.all(10.0),
-                                  child: Text(   ftime.format(DateTime.parse(widget.info['event_date'])).toString(),
+                                  child: Text(   ftime.format(DateTime.parse(widget.info.event_date)).toString(),
                                       textScaleFactor: 1.1,
                                       style: TextStyle(
                                           fontSize: 16,
