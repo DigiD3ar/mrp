@@ -340,13 +340,16 @@ class Historial extends StatelessWidget {
                   FutureBuilder(
                     future:dal.catalog(this.id),
                     builder: (context, snapshot){
-                      if(snapshot.hasData)
+                      if(snapshot.hasError){
+                        return Text(snapshot.error.toString());
+                      }
+                      else if(snapshot.hasData)
                       {
                         print(snapshot.data.data);
 
                         return Expanded(child: Tarjeta(tipo:"solicitudes",datos: snapshot.data.data));
                       } else {
-                        return Expanded(child: Center(child:CircularProgressIndicator(backgroundColor: Colors.blueAccent,)));
+                        return Expanded(child: Center(child:CircularProgressIndicator()));
                       }
                     }
                     ),
@@ -445,7 +448,10 @@ class PeticionesState extends State<Peticiones> {
                   child: FutureBuilder(
                     future:dal.Historial(widget.datos),
                      builder:(context, snapshot) {
-                       if (snapshot.hasData) {
+                       if(snapshot.hasError){
+                         return Text(snapshot.error.toString());
+                       }
+                       else if (snapshot.hasData) {
                         return (this.tipo == 0) ? Tarjeta(tipo:"historial",datos:snapshot.data.data.confir) : Tarjeta(tipo:"historial",datos:snapshot.data.data.cancel);
                        }else{
                          return Center(child:CircularProgressIndicator());
@@ -1557,9 +1563,49 @@ class ServiceForm extends StatelessWidget {
 
   ServiceForm(this.data);
 
+
+  Widget participants(data){
+    List<Widget> cols = new List<Widget>();
+      data.forEach((k,v)=> cols.add(new Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Text(
+            "No. of $k",
+            textScaleFactor: 1.1,
+            style: TextStyle(
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold),
+          ),
+          Row(
+            children: <Widget>[
+              Container(
+                padding: const EdgeInsets.all(6.0),
+                margin: EdgeInsets.symmetric(
+                    vertical: 0.0, horizontal: 15.0),
+                child: Text(v.toString(),
+                    textScaleFactor: 1.2,
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold)),
+              ),
+            ],
+          )
+        ],
+      )));
+
+    return Container(
+      margin:
+      EdgeInsets.symmetric(vertical: 22.0, horizontal: 0.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: cols,
+      ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
-
     return MediaQuery.removePadding(
       context: context,
       removeTop: true,
@@ -1734,65 +1780,7 @@ class ServiceForm extends StatelessWidget {
                             )
                           ],
                         ),
-                        Container(
-                          margin:
-                              EdgeInsets.symmetric(vertical: 22.0, horizontal: 0.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "No. of Adults",
-                                    textScaleFactor: 1.1,
-                                    style: TextStyle(
-                                        fontSize: 18.0,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Row(
-                                    children: <Widget>[
-                                      Container(
-                                        padding: const EdgeInsets.all(6.0),
-                                        margin: EdgeInsets.symmetric(
-                                            vertical: 0.0, horizontal: 15.0),
-                                        child: Text('2',
-                                            textScaleFactor: 1.2,
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text("No. of Childs",
-                                      textScaleFactor: 1.1,
-                                      style: TextStyle(
-                                          fontSize: 18.0,
-                                          fontWeight: FontWeight.bold)),
-                                  Row(
-                                    children: <Widget>[
-                                      Container(
-                                        margin: EdgeInsets.symmetric(
-                                            vertical: 0.0, horizontal: 15.0),
-                                        padding: const EdgeInsets.all(6.0),
-                                        child: Text('3',
-                                            textScaleFactor: 1.2,
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              )
-                            ],
-                          ),
-                        ),
+                        participants(this.data.participants),
                         Container(
                           margin:
                               EdgeInsets.symmetric(horizontal: 0.0, vertical: 10.0),

@@ -70,8 +70,16 @@ class HistoryInfo{
   HistoryInfo({this.confir, this.cancel});
 
   factory HistoryInfo.fromJson(Map<String, dynamic> parsedJson){
-    var list = parsedJson['Confirmados'] as List;
-    var list2 = parsedJson['cancelados'] as List;
+
+
+    print(parsedJson['cancelados'].length);
+
+
+    var list = parsedJson['Confirmados'].length > 0? Map.from(parsedJson['Confirmados']).values.toList() : [];
+
+    var list2 = parsedJson['cancelados'].length > 0? Map.from(parsedJson['cancelados']).values.toList(): [];
+    print("hi2");
+
     return HistoryInfo(
         confir: list.map((i)=>Confirmados.fromJson(i)).toList(),
         cancel : list2.map((i)=>Cancelados.fromJson(i)).toList()
@@ -168,11 +176,13 @@ class RequestInfo{
   String address;
   String cover;
   String total;
+  Map<String,dynamic> participants;
 
 
-  RequestInfo({this.request_id,this.service_id,this.client_folio,this.status,this.event_date,this.name,this.address,this.cover,this.total});
+  RequestInfo({this.request_id,this.service_id,this.client_folio,this.status,this.event_date,this.name,this.address,this.cover,this.total,this.participants});
 
   factory RequestInfo.fromJson(Map<String, dynamic> parsedJson){
+    print(parsedJson);
     return RequestInfo(
         request_id:parsedJson['request_id'].toString(),
         service_id:parsedJson['service_id'].toString(),
@@ -182,7 +192,8 @@ class RequestInfo{
         name:parsedJson['name'],
         address:parsedJson['address'],
         cover:parsedJson['cover'].toString(),
-        total:parsedJson['total'].toString()
+        total:parsedJson['total'].toString(),
+        participants:jsonDecode(parsedJson['participants'])
     );
   }
 
