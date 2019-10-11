@@ -27,12 +27,21 @@ class User {
   String lat;
   String long;
   String address;
+  String address_general;
+  List<String> services;
 
-  User({this.person_name,this.provider_folio,this.initial_date,this.final_date,this.cover,this.lat,this.long,this.address});
+  User({this.person_name,this.provider_folio,this.initial_date,this.final_date,this.cover,this.lat,this.long,this.address,this.address_general,this.services});
+
 
   factory User.fromJson(Map<String, dynamic> parsedJson){
+    List<String> serv = new List<String>();
+    parsedJson['services'].forEach((v) {
+      return serv.add(v['name'] );
+    });
+
+
     return User(
-      person_name:parsedJson['pro']['person_name'],
+      person_name:parsedJson['pro'] ['person_name'],
       provider_folio:parsedJson['pro']['proveedor_folio'],
       initial_date:parsedJson['pro']['initial_date'],
       final_date:parsedJson['pro']['final_date'],
@@ -40,6 +49,8 @@ class User {
       lat:parsedJson['pro']['lat'],
       long:parsedJson['pro']['long'],
       address:parsedJson['pro']['ubicacion'],
+        address_general:parsedJson['pro']['ubicacion_general'],
+      services:serv
     );
   }
 
@@ -57,7 +68,7 @@ class HistoryData{
     return HistoryData(
         success: parsedJson['success'],
         message : parsedJson['message'],
-        data : HistoryInfo.fromJson(parsedJson['data'])
+        data : parsedJson['data'] != null ? new HistoryInfo.fromJson(parsedJson['data']) : null
     );
   }
 }
@@ -70,19 +81,9 @@ class HistoryInfo{
   HistoryInfo({this.confir, this.cancel});
 
   factory HistoryInfo.fromJson(Map<String, dynamic> parsedJson){
-
-
-    print(parsedJson['cancelados'].length);
-
-
-    var list = parsedJson['Confirmados'].length > 0? Map.from(parsedJson['Confirmados']).values.toList() : [];
-
-    var list2 = parsedJson['cancelados'].length > 0? Map.from(parsedJson['cancelados']).values.toList(): [];
-    print("hi2");
-
     return HistoryInfo(
-        confir: list.map((i)=>Confirmados.fromJson(i)).toList(),
-        cancel : list2.map((i)=>Cancelados.fromJson(i)).toList()
+        confir: (parsedJson['Confirmados'] as List).map((i)=>Confirmados.fromJson(i)).toList(),
+        cancel :(parsedJson['cancelados'] as List).map((i)=>Cancelados.fromJson(i)).toList()
     );
   }
 }
@@ -102,6 +103,7 @@ class Confirmados {
   Confirmados({this.request_id,this.service_id,this.client_folio,this.status,this.event_date,this.name,this.address});
 
   factory Confirmados.fromJson(Map<String, dynamic> parsedJson){
+    if(parsedJson['request_id'] is int) print("si"); else print("no");
 
     return Confirmados(
         request_id:parsedJson['request_id'],
@@ -130,6 +132,8 @@ class Cancelados {
   Cancelados({this.request_id,this.service_id,this.client_folio,this.status,this.event_date,this.name,this.address});
 
   factory Cancelados.fromJson(Map<String, dynamic> parsedJson){
+
+
     return Cancelados(
         request_id:parsedJson['request_id'],
         service_id:parsedJson['service_id'],
@@ -147,20 +151,18 @@ class Cancelados {
 class RequestData{
   bool success;
   String message;
-  List<dynamic> data;
+  List<RequestInfo> data;
 
   RequestData({this.success, this.message, this.data});
 
 
   factory RequestData.fromJson(Map<String, dynamic> parsedJson){
 
-    var list = parsedJson['data']['solicitudes'].values;
-     var aux = list.map((i)=>RequestInfo.fromJson(i)).toList();
 
     return RequestData(
         success: parsedJson['success'],
         message : parsedJson['message'],
-        data : aux
+        data : (parsedJson['data']['solicitudes'] as List).map((i)=>RequestInfo.fromJson(i)).toList()
     );
   }
 }
@@ -176,13 +178,19 @@ class RequestInfo{
   String address;
   String cover;
   String total;
-  Map<String,dynamic> participants;
+  List<Participants> participants;
 
 
   RequestInfo({this.request_id,this.service_id,this.client_folio,this.status,this.event_date,this.name,this.address,this.cover,this.total,this.participants});
 
   factory RequestInfo.fromJson(Map<String, dynamic> parsedJson){
-    print(parsedJson);
+
+
+    Map x =  json.decode(parsedJson['participants']);
+
+    List aux = x.map((k,v)=>MapEntry(k,Participants(title:k.toString(),quantity:v))).values.toList();
+
+
     return RequestInfo(
         request_id:parsedJson['request_id'].toString(),
         service_id:parsedJson['service_id'].toString(),
@@ -193,11 +201,29 @@ class RequestInfo{
         address:parsedJson['address'],
         cover:parsedJson['cover'].toString(),
         total:parsedJson['total'].toString(),
-        participants:jsonDecode(parsedJson['participants'])
+        participants:aux
     );
   }
 
 }
+
+class Participants{
+
+ String title;
+ int quantity;
+
+  Participants({this.title,this.quantity});
+
+  factory Participants.fromJson(Map<String, dynamic> parsedJson){
+    return Participants(
+      title:parsedJson['title'],
+      quantity:parsedJson['service_id'],
+    );
+
+  }
+
+}
+
 
 class ServiceData{
   bool success;

@@ -35,7 +35,6 @@ class _GeneralState extends State<General> {
   @override
   Widget build(BuildContext context) {
 
-
     this.screens  = [Historial(widget.Info.provider_folio), Peticiones(widget.Info.provider_folio), Profile(widget.Info)];
 
 
@@ -80,7 +79,6 @@ class Profile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(this.data.person_name);
     return ListView(shrinkWrap: true, children: [
       Container(
         child: Column(
@@ -198,9 +196,30 @@ class Content extends StatelessWidget {
 
   Set<Marker> markers = Set();
 
+  Widget _ServiceTitle(info){
+   return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Row(
+        children: <Widget>[
+          Text("·"),
+          Text(info,
+              textScaleFactor: 1.15,
+              style: TextStyle(
+                fontSize: 18.0,
+              ))
+        ],
+      ),
+    );
+  }
+
+  Widget getTextWidgets(List<String> strings)
+  {
+    return new Row(children: strings.map((item) =>  _ServiceTitle(item)).toList());
+  }
+
   @override
   Widget build(BuildContext context) {
-    print(this.data);
+    print(this.data.person_name);
     return Column(
       children: <Widget>[
         Row(
@@ -222,7 +241,7 @@ class Content extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
                       Icon(Icons.place),
-                      Text("Homún, Yucatán",textScaleFactor: 1.1, style: TextStyle(fontSize: 14.0)),
+                      Text( this.data.address_general,textScaleFactor: 1.1, style: TextStyle(fontSize: 14.0)),
                     ],
                   )
                 ],
@@ -238,47 +257,7 @@ class Content extends StatelessWidget {
                 style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
           ],
         ),
-        Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: Row(
-            children: <Widget>[
-              Text("·"),
-              Text(
-                "Cenotes de Homún",
-                textScaleFactor: 1.15,
-                style: TextStyle(
-                  fontSize: 18.0,
-                ),
-              )
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: Row(
-            children: <Widget>[
-              Text("·"),
-              Text("Paseo en Lancha Ría",
-                  textScaleFactor: 1.15,
-                  style: TextStyle(
-                    fontSize: 18.0,
-                  ))
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: Row(
-            children: <Widget>[
-              Text("·"),
-              Text("Buceo en Cenotes",
-                  textScaleFactor: 1.15,
-                  style: TextStyle(
-                    fontSize: 18.0,
-                  ))
-            ],
-          ),
-        ),
+        getTextWidgets(this.data.services),
         Row(
           children: <Widget>[
             Expanded(
@@ -345,8 +324,6 @@ class Historial extends StatelessWidget {
                       }
                       else if(snapshot.hasData)
                       {
-                        print(snapshot.data.data);
-
                         return Expanded(child: Tarjeta(tipo:"solicitudes",datos: snapshot.data.data));
                       } else {
                         return Expanded(child: Center(child:CircularProgressIndicator()));
@@ -447,7 +424,7 @@ class PeticionesState extends State<Peticiones> {
                 Expanded(
                   child: FutureBuilder(
                     future:dal.Historial(widget.datos),
-                     builder:(context, snapshot) {
+                     builder:(context,  snapshot) {
                        if(snapshot.hasError){
                          return Text(snapshot.error.toString());
                        }
@@ -691,7 +668,7 @@ class Tarjeta extends StatelessWidget {
                               BorderRadius.all(Radius.circular(35.0))),
                       padding: EdgeInsets.only(
                           top: 6.0, bottom: 6.0, left: 6.0, right: 6.0),
-                      child: Text(data.status,
+                      child: Text(data.status.toString(),
                           textScaleFactor: 1.15,
                           style: TextStyle(fontSize: 15, color: Colors.white))),
                   Container(
@@ -1564,13 +1541,12 @@ class ServiceForm extends StatelessWidget {
   ServiceForm(this.data);
 
 
-  Widget participants(data){
-    List<Widget> cols = new List<Widget>();
-      data.forEach((k,v)=> cols.add(new Column(
+  Widget participants( List<Participants> data){
+      List<Widget> cols = data.map((x)=> new Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Text(
-            "No. of $k",
+            "No. of ${x.title}",
             textScaleFactor: 1.1,
             style: TextStyle(
                 fontSize: 18.0,
@@ -1582,7 +1558,7 @@ class ServiceForm extends StatelessWidget {
                 padding: const EdgeInsets.all(6.0),
                 margin: EdgeInsets.symmetric(
                     vertical: 0.0, horizontal: 15.0),
-                child: Text(v.toString(),
+                child: Text(x.quantity.toString(),
                     textScaleFactor: 1.2,
                     style: TextStyle(
                         fontSize: 16,
@@ -1591,7 +1567,7 @@ class ServiceForm extends StatelessWidget {
             ],
           )
         ],
-      )));
+      )).toList();
 
     return Container(
       margin:

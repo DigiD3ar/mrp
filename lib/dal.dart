@@ -8,10 +8,10 @@ class Dal {
   Future<LoginData>login(String password) async{
     var url ='http://clientes.locker.com.mx/mrback/public/api/proveedor/login';
     var payload = {"provider_folio":password};
+    print(payload);
     final response = await http.post(url, body:payload);
 
     if (response.statusCode == 200) {
-
       return LoginData.fromJson(json.decode(response.body));
 
     } else {
