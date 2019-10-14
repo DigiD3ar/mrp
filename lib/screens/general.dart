@@ -9,6 +9,11 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
 import 'package:merida_rentals_provider/aux/User.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+
+Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {  print("click4:${message} "); }
+
 
 
 
@@ -25,6 +30,8 @@ class General extends StatefulWidget {
 class _GeneralState extends State<General> {
   int index = 0;
   List<Widget> screens;
+  final FirebaseMessaging _fireNote = FirebaseMessaging();
+
 
   void _onItemTapped(int index) {
     setState(() {
@@ -33,9 +40,79 @@ class _GeneralState extends State<General> {
   }
 
   @override
+  void initState()   {
+    // TODO: implement initState
+    super.initState();
+    _setFire();
+    _getToken();
+
+  }
+
+
+
+  void _setFire() {
+    _fireNote.configure(
+      onBackgroundMessage:  myBackgroundMessageHandler,
+      onMessage: (Map<String, dynamic> message) async {
+        print("click1:${message} ");
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+
+        switch(message['data']['call']){
+          case "Historial":{ setState(() {this.index = 0;});} break;
+          case "chat":{} break;
+
+        }
+
+
+        print("click2:${message} ");
+      },
+      onResume: (Map<String, dynamic> message) async {
+        switch(message['data']['call']){
+          case "Historial":{ setState(() {this.index = 0;});} break;
+          case "chat":{} break;
+
+        }
+        print("click3:${message} ");
+
+      },
+        );
+
+  }
+
+  void _getToken() async{
+    var token = await  _fireNote.getToken();
+    print("token: $token");
+  }
+
+  void _showDialog(String data) {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Alert Dialog title"),
+          content: new Text(data),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
 
     this.screens  = [Historial(widget.Info.provider_folio), Peticiones(widget.Info.provider_folio), Profile(widget.Info)];
+
 
 
 

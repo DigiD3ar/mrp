@@ -16,8 +16,30 @@ class _LoginState extends State<Login> {
   final pass = TextEditingController();
 
   void attempLogin()async {
-    await  dal.login(pass.text).then((LoginData x)=> (x.success)? Navigator.pushNamed(context,'/provider',arguments:x.data): null);
+    await  dal.login(pass.text).then((LoginData x)=> (x.success)? Navigator.pushNamed(context,'/provider',arguments:x.data): _showDialog);
 
+  }
+
+  void _showDialog() {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Contraseña equivocada"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override

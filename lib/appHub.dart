@@ -2,10 +2,17 @@ import 'package:flutter/material.dart';
 import 'screens/login.dart';
 import 'screens/general.dart';
 
+
 class AppHub extends StatelessWidget {
+
+  final bool log;
+
+  AppHub({this.log})
 
   @override
   Widget build(BuildContext context) {
+
+
 
     return MaterialApp(
       title: 'Merida Rentals',
@@ -28,7 +35,7 @@ class AppHub extends StatelessWidget {
         }
       },
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
+      initialRoute: this.log? '/provider' : '/' ,
     );
   }
 }
