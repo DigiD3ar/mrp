@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() async {
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  final bool info = prefs.getBool('logged');
+  final bool info = prefs.getBool('logged') ?? false;
 
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((_){runApp(AppHub(log:info));});

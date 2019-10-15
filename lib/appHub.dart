@@ -7,7 +7,7 @@ class AppHub extends StatelessWidget {
 
   final bool log;
 
-  AppHub({this.log})
+  AppHub({this.log});
 
   @override
   Widget build(BuildContext context) {

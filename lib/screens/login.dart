@@ -16,7 +16,7 @@ class _LoginState extends State<Login> {
   final pass = TextEditingController();
 
   void attempLogin()async {
-    await  dal.login(pass.text).then((LoginData x)=> (x.success)? Navigator.pushNamed(context,'/provider',arguments:x.data): _showDialog);
+    await  dal.login(pass.text).then((LoginData x)=> (x.success)? Navigator.pushNamed(context,'/provider',arguments:x.data): _showDialog());
 
   }
 

@@ -12,7 +12,7 @@ class LoginData{
     return LoginData(
         success: parsedJson['success'],
         message : parsedJson['message'],
-        data :  User.fromJson(parsedJson ['data'])
+        data : parsedJson['data'] != null ? new User.fromJson(parsedJson['data']) : null
     );
   }
 }
