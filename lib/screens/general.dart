@@ -2077,19 +2077,16 @@ class DatesFormState extends State<DatesForm> {
   }
 
   Future<Null> ChooseDate(BuildContext contex) async {
-    final DateTime picked1 = await showDatePicker(
-        context: context,
-        initialDate: DateTime.now().add(Duration(seconds: 1)),
-        firstDate: DateTime.now(),
-        lastDate: DateTime(2100));
+    final DateTime picked1 = await showDatePicker(context: context, initialDate: DateTime.now().add(Duration(seconds: 1)), firstDate: DateTime.now(), lastDate: DateTime(2100));
 
-    final TimeOfDay picked2 =
-        await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    final TimeOfDay picked2 = await showTimePicker(context: context, initialTime: TimeOfDay.now());
 
-    if (picked1 != null) {
+    if (picked1 != null && picked2 != null) {
       setState(() {
         this.fechasfinales.add({"date": picked1, "time": picked2});
       });
+    }else{
+
     }
   }
 
