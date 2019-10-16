@@ -3,6 +3,7 @@ import 'general.dart';
 import '../dal.dart';
 import 'dart:convert';
 import 'package:merida_rentals_provider/aux/User.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 
 class Login extends StatefulWidget {
@@ -14,9 +15,19 @@ class _LoginState extends State<Login> {
 
   final Dal dal = new Dal();
   final pass = TextEditingController();
+  final FirebaseMessaging _fireNote = FirebaseMessaging();
+  String tok;
+
+  void _getToken() async{
+    var token = await  _fireNote.getToken();
+    setState(() {
+      this.tok = token;
+    });
+    print(token);
+  }
 
   void attempLogin()async {
-    await  dal.login(pass.text).then((LoginData x)=> (x.success)? Navigator.pushNamed(context,'/provider',arguments:x.data): _showDialog());
+    await  dal.login(pass.text,this.tok).then((LoginData x)=> (x.success)? Navigator.pushNamed(context,'/provider',arguments:x.data): _showDialog());
 
   }
 
@@ -40,6 +51,13 @@ class _LoginState extends State<Login> {
         );
       },
     );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getToken();
   }
 
   @override

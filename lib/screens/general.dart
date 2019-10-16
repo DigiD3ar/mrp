@@ -44,7 +44,7 @@ class _GeneralState extends State<General> {
     // TODO: implement initState
     super.initState();
     _setFire();
-    _getToken();
+
 
   }
 
@@ -80,10 +80,7 @@ class _GeneralState extends State<General> {
 
   }
 
-  void _getToken() async{
-    var token = await  _fireNote.getToken();
-    print("token: $token");
-  }
+
 
   void _showDialog(String data) {
     // flutter defined function
@@ -2057,6 +2054,28 @@ class DatesFormState extends State<DatesForm> {
         .toList();
   }
 
+  void _showDialog(String msg) {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text(msg),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<Null> ChooseDate(BuildContext contex) async {
     final DateTime picked1 = await showDatePicker(
         context: context,
@@ -2082,7 +2101,15 @@ class DatesFormState extends State<DatesForm> {
 
    sendDates()  {
     var fechas =  jsonEncode({'date_options':this.fechasfinales.map((x)=>"${Rdate.format(x['date']).toString()} ${Rtime.format(DateTime(2020, 01, 01, x['time'].hour, x['time'].minute)).toString()}" ).toList()});
-    dal.offerDates(widget.info.request_id,fechas).then((x)=>(x['success'])? Navigator.pop(context) : print(x));
+    dal.offerDates(widget.info.request_id,fechas).then(
+            (x){
+              if(x['success']) {
+                Navigator.pop(context);Navigator.pop(context);
+              }else {
+                _showDialog("Hubo un error, \n cheque su conexion de internet\n eh intente mas tarde");
+              }
+              });
+
       //Navigator.push(context, MaterialPageRoute(builder: (context) => Chat()));
 
   }

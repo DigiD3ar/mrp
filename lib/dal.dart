@@ -5,9 +5,9 @@ import 'dart:convert';
 class Dal {
 
 
-  Future<LoginData>login(String password) async{
+  Future<LoginData>login(String password,String token) async{
     var url ='http://clientes.locker.com.mx/mrback/public/api/proveedor/login';
-    var payload = {"provider_folio":password};
+    var payload = {"provider_folio":password,"token":token};
     print(payload);
     final response = await http.post(url, body:payload);
 
